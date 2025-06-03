@@ -22,7 +22,7 @@ jobs:
           node-version: '20'
 
       - name: Install NPM dependencies
-        run: npm Install
+        run: npm install
 
       - name: Set up Go
         uses: actions/setup-go@v5
