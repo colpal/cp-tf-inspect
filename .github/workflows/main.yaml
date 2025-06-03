@@ -3,10 +3,10 @@ name: cp-tf-inspect CI and Release Pipeline
 on:
   push:
     branches:
-      - main
+      - develop
   pull_request:
     branches:
-      - main
+      - develop
 
 jobs:
   build-and-release:
@@ -55,9 +55,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      # Only do semantic-release on main
-      - name: Release on main using semantic-release
-        if: github.ref == 'refs/heads/main'
+      # Only do semantic-release on develop
+      - name: Release on develop using semantic-release
+        if: github.ref == 'refs/heads/develop'
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: npx semantic-release
