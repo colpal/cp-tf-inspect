@@ -47,6 +47,7 @@ jobs:
           prerelease: true
           draft: false
           files: cp-tf-inspect
+          target_commitish: ${{ github.event.pull_request.head.sha }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
