@@ -96,4 +96,3 @@ This project uses a **trunk-based workflow**:
 
 - [GitHub Actions](https://github.com/colpal/cp-tf-inspect/actions) runs all tests, builds the Linux binary, and attaches it to every release and PR for preview.
 - The latest production binary is always available in the [Releases page](https://github.com/colpal/cp-tf-inspect/releases).
-
