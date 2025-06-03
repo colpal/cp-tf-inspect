@@ -1,0 +1,63 @@
+name: cp-tf-inspect CI and Release Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: '1.18'
+
+      - name: Run Unit Tests
+        run: go test ./cmd/...
+
+      - name: Build Linux Binary (cp-tf-inspect at repo root)
+        run: GOOS=linux GOARCH=amd64 go build -o cp-tf-inspect .
+
+      - name: Run Integration Tests
+        run: |
+          ./cp-tf-inspect list-module-source --dir ./test/fixtures/basic
+          go test ./test/...
+
+      - name: Upload Artifact (PR or Push)
+        uses: actions/upload-artifact@v4
+        with:
+          name: cp-tf-inspect-${{ github.event_name == 'push' && 'release' || 'pr-preview' }}
+          path: cp-tf-inspect
+
+      - name: Create or update PR "Preview" Release
+        if: github.event_name == 'pull_request'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: pr-latest
+          name: PR Preview Latest
+          prerelease: true
+          draft: false
+          files: cp-tf-inspect
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create or update Main GitHub Release
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: latest
+          name: Latest Production
+          prerelease: false
+          draft: false
+          files: cp-tf-inspect
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
