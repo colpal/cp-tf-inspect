@@ -1,0 +1,6 @@
+/cp-tf-inspect
+/cp-tf-inspect.exe
+*.out
+
+.idea/
+.vscode/
