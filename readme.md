@@ -12,8 +12,7 @@ A fast, extensible CLI tool for inspecting Terraform workspaces—supports uniqu
 
 Go to the [Releases page](https://github.com/colpal/cp-tf-inspect/releases/latest)  
 Download the `cp-tf-inspect` binary for Linux.
-```
-bash
+```bash
 curl -LO https://github.com/colpal/cp-tf-inspect/releases/download/vX.Y.Z/cp-tf-inspect
 chmod +x cp-tf-inspect
 ./cp-tf-inspect --help
@@ -21,7 +20,7 @@ chmod +x cp-tf-inspect
 ### 2. (Optional) Build from source
 
 If you are on a platform other than Linux or want to build from source:
-```
+```bash
 git clone https://github.com/colpal/cp-tf-inspect.git
 cd cp-tf-inspect
 go build -o cp-tf-inspect .
