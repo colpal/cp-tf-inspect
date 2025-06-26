@@ -22,7 +22,7 @@ jobs:
           node-version: '20'
 
       - name: Install NPM dependencies
-        run: npm install
+        run: npm ci
 
       - name: Set up Go
         uses: actions/setup-go@v5
@@ -43,7 +43,7 @@ jobs:
       # Optionally upload PR preview (see previous best-practice notes)
       - name: Create Pre-release for PR
         if: github.event_name == 'pull_request'
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8
         with:
           tag_name: pr-${{ github.event.pull_request.number }}-${{ github.run_number }}-${{ github.run_attempt }}
           name: Preview for PR #${{ github.event.pull_request.number }}, Run #${{ github.run_number }}, Attempt #${{ github.run_attempt }}

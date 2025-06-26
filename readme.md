@@ -6,37 +6,52 @@ A fast, extensible CLI tool for inspecting Terraform workspaces—supports uniqu
 
 ---
 
-## ✨ Features
-
-- **Lists all unique module sources** in a Terraform workspace (JSON output)
-- Build & release workflow with full automation
-- PR preview builds and semantic versioned stable releases (Go, Linux)
-- All releases and binaries available as GitHub Releases
-- Contributor friendly, with required commit conventions and robust CI
-
----
-
 ## 🚀 Quickstart
 
-**1. Download the latest stable binary**  
-Visit [Releases](https://github.com/colpal/cp-tf-inspect/releases/latest) and download `cp-tf-inspect`.
+### 1. Download the latest Linux binary
 
-**2. Build from source**
-```bash
+Go to the [Releases page](https://github.com/colpal/cp-tf-inspect/releases/latest)  
+Download the `cp-tf-inspect` binary for Linux.
+```
+bash
+curl -LO https://github.com/colpal/cp-tf-inspect/releases/download/vX.Y.Z/cp-tf-inspect
+chmod +x cp-tf-inspect
+./cp-tf-inspect --help
+```
+### 2. (Optional) Build from source
+
+If you are on a platform other than Linux or want to build from source:
+```
 git clone https://github.com/colpal/cp-tf-inspect.git
 cd cp-tf-inspect
-go build -o cp-tf-inspect
+go build -o cp-tf-inspect .
 ```
 
-**3. Usage**
-```bash
-./cp-tf-inspect list-module-source --dir <path-to-terraform-workspace>
-```
+## 🛠 Usage
 
-Example:
-```bash
-./cp-tf-inspect list-module-source --dir ./test/fixtures/basic
-```
+**Command:**  
+`list-module-source`
+
+- **Description:** Outputs a unique, sorted JSON array of all module sources found in the specified workspace or module directory.
+- **Options:**
+  - `--dir <directory>`: Path to a Terraform workspace.
+- **Usage:**
+  ```bash
+  ./cp-tf-inspect list-module-source --dir <path-to-terraform-workspace>
+  ```
+- **Example:**
+  ```bash
+  ./cp-tf-inspect list-module-source --dir ./test/fixtures/basic
+  ```
+- **Output:**
+  ```json
+  [
+    "../modules/storage",
+    "git::https://example.com/bar.git",
+    "terraform-aws-modules/vpc/aws"
+  ]
+  ```
+
 
 ---
 
@@ -73,15 +88,15 @@ go test ./test/...
 
 ## 👥 Contributing
 
-**We do not support fork-based pull requests.**  
-Please push feature branches directly to this repository and open PRs from them targeting `main`.
-
+We welcome contributions via **fork & pull request**!
+  
 ### Contribution Steps
 
-1. **Create a feature branch in this repository from `main`.**
-2. Make your changes, following the commit message guidelines below.
-3. Push your branch and open a Pull Request (PR) to `main`.
-4. Ensure all Go tests pass. Our GitHub Actions will automatically run checks and build PR preview releases.
+1. Fork this repository.
+2. Create a feature/fix branch from `main`.
+3. Make your changes, following the commit message guidelines below.
+4. Push your branch and open a Pull Request (PR) to `main`.
+5. Ensure all Go tests pass. Our GitHub Actions will automatically run checks and build PR preview releases.
 
 ### Commit Messages: Conventional Commits
 
