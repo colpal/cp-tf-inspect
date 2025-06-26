@@ -40,7 +40,6 @@ jobs:
           ./cp-tf-inspect list-module-source --dir ./test/fixtures/basic
           go test ./test/...
 
-      # Optionally upload PR preview (see previous best-practice notes)
       - name: Create Pre-release for PR
         if: github.event_name == 'pull_request'
         uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8
