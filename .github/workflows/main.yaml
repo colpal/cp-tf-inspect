@@ -27,10 +27,10 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5
         with:
-          go-version: '1.18'
+          go-version: '1.24'
 
       - name: Build Linux Binary
-        run: GOOS=linux GOARCH=amd64 go build -o cp-tf-inspect .
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o cp-tf-inspect .
 
       - name: Run Unit Tests
         run: go test ./cmd/...
