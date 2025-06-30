@@ -1,0 +1,62 @@
+name: cp-tf-inspect CI and Release Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+
+      - name: Set up Node.js (for semantic-release)
+        uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: '24'
+
+      - name: Install NPM dependencies
+        run: npm ci
+
+      - name: Set up Go
+        uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5
+        with:
+          go-version: '1.24'
+
+      - name: Build Linux Binary
+        run: GOOS=linux GOARCH=amd64 go build -o cp-tf-inspect .
+
+      - name: Run Unit Tests
+        run: go test ./cmd/...
+
+      - name: Run Integration Tests
+        run: |
+          ./cp-tf-inspect list-module-source --dir ./test/fixtures/basic
+          go test ./test/...
+
+      - name: Create Pre-release for PR
+        if: github.event_name == 'pull_request'
+        uses: softprops/action-gh-release@72f2c25fcb47643c292f7107632f7a47c1df5cd8
+        with:
+          tag_name: pr-${{ github.event.pull_request.number }}-${{ github.run_number }}-${{ github.run_attempt }}
+          name: Preview for PR #${{ github.event.pull_request.number }}, Run #${{ github.run_number }}, Attempt #${{ github.run_attempt }}
+          prerelease: true
+          draft: false
+          files: cp-tf-inspect
+          target_commitish: ${{ github.event.pull_request.head.sha }}
+          make_latest: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Only do semantic-release on main
+      - name: Release on main using semantic-release
+        if: github.ref == 'refs/heads/main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: npx semantic-release
