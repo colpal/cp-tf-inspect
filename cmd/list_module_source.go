@@ -31,12 +31,10 @@ func collectModuleSources(rootDir, currentDir string, module *tfconfig.Module, a
 	for _, call := range module.ModuleCalls {
 		src := call.Source
 		if strings.HasPrefix(src, "./") || strings.HasPrefix(src, "../") {
-			absPath := filepath.Join(currentDir, src)
-			if rel, err := filepath.Rel(rootDir, absPath); err == nil {
+			childDir := filepath.Join(currentDir, src)
+			if rel, err := filepath.Rel(rootDir, childDir); err == nil {
 				src = filepath.ToSlash(rel)
 			}
-			childDir := filepath.Join(currentDir, call.Source)
-			childDir = filepath.Clean(childDir)
 			if _, seen := visited[childDir]; !seen {
 				visited[childDir] = struct{}{}
 				childModule, diag := tfconfig.LoadModule(childDir)
