@@ -3,13 +3,16 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"path/filepath"
 	"sort"
+	"strings"
 
 	"github.com/hashicorp/terraform-config-inspect/tfconfig"
 	"github.com/spf13/cobra"
 )
 
 var dir string
+var recursive bool
 
 func UniqueModuleSources(module *tfconfig.Module) []string {
 	sources := make(map[string]struct{}, len(module.ModuleCalls))
@@ -18,6 +21,40 @@ func UniqueModuleSources(module *tfconfig.Module) []string {
 	}
 	sourcesList := make([]string, 0, len(sources))
 	for src := range sources {
+		sourcesList = append(sourcesList, src)
+	}
+	sort.Strings(sourcesList)
+	return sourcesList
+}
+
+func collectModuleSources(rootDir, currentDir string, module *tfconfig.Module, acc map[string]struct{}, visited map[string]struct{}) {
+	for _, call := range module.ModuleCalls {
+		src := call.Source
+		if strings.HasPrefix(src, "./") || strings.HasPrefix(src, "../") {
+			childDir := filepath.Join(currentDir, src)
+			if rel, err := filepath.Rel(rootDir, childDir); err == nil {
+				src = filepath.ToSlash(rel)
+			}
+			if _, seen := visited[childDir]; !seen {
+				visited[childDir] = struct{}{}
+				childModule, diag := tfconfig.LoadModule(childDir)
+				if diag.Err() == nil {
+					collectModuleSources(rootDir, childDir, childModule, acc, visited)
+				}
+			}
+		}
+		acc[src] = struct{}{}
+	}
+}
+
+func RecursiveModuleSources(rootDir string, module *tfconfig.Module) []string {
+	acc := make(map[string]struct{})
+	visited := make(map[string]struct{})
+	rootDir = filepath.Clean(rootDir)
+	visited[rootDir] = struct{}{}
+	collectModuleSources(rootDir, rootDir, module, acc, visited)
+	sourcesList := make([]string, 0, len(acc))
+	for src := range acc {
 		sourcesList = append(sourcesList, src)
 	}
 	sort.Strings(sourcesList)
@@ -35,7 +72,12 @@ var listModuleSourceCmd = &cobra.Command{
 		if diag.Err() != nil {
 			return fmt.Errorf("failed to load module: %w", diag.Err())
 		}
-		sourcesList := UniqueModuleSources(module)
+		var sourcesList []string
+		if recursive {
+			sourcesList = RecursiveModuleSources(dir, module)
+		} else {
+			sourcesList = UniqueModuleSources(module)
+		}
 		b, err := json.MarshalIndent(sourcesList, "", "  ")
 		if err != nil {
 			return fmt.Errorf("failed to marshal JSON: %w", err)
@@ -47,5 +89,6 @@ var listModuleSourceCmd = &cobra.Command{
 
 func init() {
 	listModuleSourceCmd.Flags().StringVar(&dir, "dir", "", "Path to the Terraform workspace directory (required)")
+	listModuleSourceCmd.Flags().BoolVar(&recursive, "recursive", false, "Recursively follow local module calls and list all underlying module sources")
 	listModuleSourceCmd.MarkFlagRequired("dir")
 }

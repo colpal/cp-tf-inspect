@@ -34,7 +34,8 @@ go build -o cp-tf-inspect .
 - **Description:** Outputs a unique, sorted JSON array of all module sources found in the specified workspace or module directory.
 - **Options:**
   - `--dir <directory>`: Path to a Terraform workspace.
-- **Usage:**
+  - `--recursive`: (Optional) Recursively follow local module calls (`./`, `../`) and include underlying module sources.
+- **Usage (non-recursive, default):**
   ```bash
   ./cp-tf-inspect list-module-source --dir <path-to-terraform-workspace>
   ```
@@ -50,7 +51,10 @@ go build -o cp-tf-inspect .
     "terraform-aws-modules/vpc/aws"
   ]
   ```
-
+- **Example (with recursive wrapper layout):**
+  ```bash
+  ./cp-tf-inspect list-module-source --dir ./test/fixtures/wrapper --recursive
+  ```
 
 ---
 
